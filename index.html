@@ -13,6 +13,8 @@
   <title>MARS Rover 2.0 | AI and robotics project</title>
 
   <link rel="preload" href="rover.glb?v=3" as="fetch" crossorigin="anonymous"/>
+  <!-- MeshoptDecoder must load BEFORE model-viewer to decode EXT_meshopt_compression GLBs -->
+  <script src="https://cdn.jsdelivr.net/npm/meshoptimizer@0.19.0/meshopt_decoder.js"></script>
   <!-- model-viewer from both CDNs for maximum reliability -->
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
 
@@ -397,6 +399,7 @@
     reveal="auto"
     touch-action="pan-y"
     interaction-prompt="none"
+    meshopt-decoder-location="https://cdn.jsdelivr.net/npm/meshoptimizer@0.19.0/meshopt_decoder.js"
     style="--progress-bar-color:#1C1C1E;--progress-bar-height:1px;"
   ></model-viewer>
 </div>
