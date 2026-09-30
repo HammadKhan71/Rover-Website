@@ -44,11 +44,6 @@
       -webkit-mask-image:radial-gradient(ellipse 45% 45% at 50% 50%, black 60%, transparent 95%);
       mask-image:radial-gradient(ellipse 45% 45% at 50% 50%, black 60%, transparent 95%);
       margin-bottom:-40px;
-      animation:sketchAnim 3s infinite alternate ease-in-out;
-    }
-    @keyframes sketchAnim {
-      0% { opacity:0.6; transform:scale(0.97); }
-      100% { opacity:1; transform:scale(1.03); filter:invert(1) grayscale(1) contrast(3) brightness(1.6); }
     }
     #loader-bar-wrap{width:min(360px,70vw);height:1px;background:rgba(255,255,255,0.1);}
     #loader-bar{height:100%;width:0%;background:#fff;animation:barFill 2s var(--ease-out) forwards;}
@@ -255,6 +250,8 @@
     }
     .gallery-slide.active{opacity:1;z-index:1;}
     .gallery-slide img{width:100%;height:100%;object-fit:cover;}
+    .gallery-container:fullscreen .gallery-slide img { object-fit:contain; }
+    .gallery-container:-webkit-full-screen .gallery-slide img { object-fit:contain; }
     .gallery-fullscreen-btn{
       position:absolute;top:16px;right:16px;
       background:rgba(255,255,255,0.8);border:none;width:40px;height:40px;
@@ -554,11 +551,6 @@
       <div class="comp-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="4"/></svg></div>
       <div><div class="comp-name">ESP32-CAM Module</div><div class="comp-qty">Qty: 1</div><div class="comp-tag">Vision</div></div>
     </div>
-    
-    <div class="comp-card anim-hidden" style="transition-delay:1.00s">
-      <div class="comp-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="8" r="2"/></svg></div>
-      <div><div class="comp-name">Phone Camera</div><div class="comp-qty">Qty: 1</div><div class="comp-tag">Vision</div></div>
-    </div>
 
   </div>
 </section>
@@ -688,6 +680,7 @@
       <div class="gallery-slide"><img src="3.jpeg" alt="Gallery Image 3"/></div>
       <div class="gallery-slide"><img src="4.jpeg" alt="Gallery Image 4"/></div>
       <div class="gallery-slide"><img src="5.jpeg" alt="Gallery Image 5"/></div>
+      <div class="gallery-slide"><img src="7.jpeg" alt="Gallery Image 7"/></div>
       
       <button class="gallery-btn gallery-prev" aria-label="Previous image" onclick="moveGallery(-1)">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
@@ -702,6 +695,7 @@
         <div class="gallery-dot" onclick="setGallery(2)"></div>
         <div class="gallery-dot" onclick="setGallery(3)"></div>
         <div class="gallery-dot" onclick="setGallery(4)"></div>
+        <div class="gallery-dot" onclick="setGallery(5)"></div>
       </div>
     </div>
   </div>
