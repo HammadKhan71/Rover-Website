@@ -9,6 +9,7 @@
   <meta property="og:type" content="website"/>
   <title>MARS Rover 2.0 | Engineering Project</title>
 
+  <link rel="preload" href="Meshy_AI_Rover_Arm_Prototype_0925175105_texture_ultra.glb" as="fetch" crossorigin="anonymous"/>
   <!-- model-viewer: Google's official GLB component.
        Handles loading, WebGL, touch/mouse orbit, lazy-loading
        and HTTP caching automatically. Works on Vercel out of the box. -->
@@ -326,7 +327,7 @@
 <div id="viewer-section">
   <model-viewer
     id="rover-model"
-    src="Meshy_AI_Rover_Arm_Prototype_0925175105_texture_opt.glb"
+    src="Meshy_AI_Rover_Arm_Prototype_0925175105_texture_ultra.glb"
     alt="MARS Rover 2.0 interactive 3D model"
     camera-controls
     auto-rotate
@@ -561,8 +562,23 @@
 
 <script>
   // LOADER
+  var loaderEl = document.getElementById('loader');
+  var mv = document.getElementById('rover-model');
+  
+  function dismissLoader() {
+    if (!loaderEl.classList.contains('hide')) {
+      loaderEl.classList.add('hide');
+    }
+  }
+
+  // Dismiss immediately when 3D model finishes parsing and rendering
+  if (mv) {
+    mv.addEventListener('load', dismissLoader);
+  }
+  
+  // Fallback timeout just in case it gets stuck
   window.addEventListener('load', function() {
-    setTimeout(function() { document.getElementById('loader').classList.add('hide'); }, 2200);
+    setTimeout(dismissLoader, 4000);
   });
 
   // NAV scroll border + active link
