@@ -12,13 +12,8 @@
   <meta property="og:type" content="website"/>
   <title>MARS Rover 2.0 | AI and robotics project</title>
 
-  <!-- model-viewer + meshopt decoder setup -->
-  <script type="module">
-    import 'https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js';
-    await customElements.whenDefined('model-viewer');
-    const MV = customElements.get('model-viewer');
-    if (MV) MV.meshoptDecoderLocation = 'https://cdn.jsdelivr.net/npm/meshoptimizer@0.19.0/meshopt_decoder.js';
-  </script>
+  <!-- model-viewer -->
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
 
 
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -388,7 +383,7 @@
 <div id="viewer-section">
   <model-viewer
     id="rover-model"
-    src="rover.glb?v=4"
+    src="rover.glb?v=5"
     alt="MARS Rover 2.0 interactive 3D model"
     camera-controls
     auto-rotate
@@ -402,7 +397,6 @@
     reveal="auto"
     touch-action="pan-y"
     interaction-prompt="none"
-    meshopt-decoder-location="https://cdn.jsdelivr.net/npm/meshoptimizer@0.19.0/meshopt_decoder.js"
     style="--progress-bar-color:#1C1C1E;--progress-bar-height:1px;"
   ></model-viewer>
 </div>
