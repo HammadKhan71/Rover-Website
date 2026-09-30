@@ -38,11 +38,17 @@
     }
     #loader.hide{opacity:0;transform:translateY(-100%);pointer-events:none;}
     .loader-sketch{
-      width:400px;max-width:80vw;
+      width:450px;max-width:85vw;
       filter:invert(1) grayscale(1) contrast(3) brightness(1.2);
       mix-blend-mode:screen;
-      clip-path:inset(18% 5% 18% 5%);
+      -webkit-mask-image:radial-gradient(ellipse 45% 45% at 50% 50%, black 60%, transparent 95%);
+      mask-image:radial-gradient(ellipse 45% 45% at 50% 50%, black 60%, transparent 95%);
       margin-bottom:-40px;
+      animation:sketchAnim 3s infinite alternate ease-in-out;
+    }
+    @keyframes sketchAnim {
+      0% { opacity:0.6; transform:scale(0.97); }
+      100% { opacity:1; transform:scale(1.03); filter:invert(1) grayscale(1) contrast(3) brightness(1.6); }
     }
     #loader-bar-wrap{width:min(360px,70vw);height:1px;background:rgba(255,255,255,0.1);}
     #loader-bar{height:100%;width:0%;background:#fff;animation:barFill 2s var(--ease-out) forwards;}
@@ -324,6 +330,7 @@
   <img src="blueprint.jpeg" class="loader-sketch" alt="Rover Sketch"/>
   <div id="loader-bar-wrap"><div id="loader-bar"></div></div>
   <div class="loader-sub">AI AND ROBOTICS PROJECT / FAST NUCES ISLAMABAD</div>
+  <div class="loader-sub" style="margin-top:-20px; font-size:10px; letter-spacing:0.2em; opacity:0.6;">BY: HAMMAD, SAMEER, UBAID AND ALI</div>
 </div>
 
 <!-- NAV -->
