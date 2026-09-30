@@ -37,8 +37,13 @@
       transition:opacity 0.8s ease,transform 0.8s var(--ease-out);
     }
     #loader.hide{opacity:0;transform:translateY(-100%);pointer-events:none;}
-    .loader-logo{font-family:var(--font-mono);font-size:clamp(20px,4vw,36px);font-weight:700;letter-spacing:0.15em;color:#fff;text-align:center;}
-    .loader-logo span{color:rgba(255,255,255,0.3);}
+    .loader-sketch{
+      width:400px;max-width:80vw;
+      filter:invert(1) grayscale(1) contrast(3) brightness(1.2);
+      mix-blend-mode:screen;
+      clip-path:inset(18% 5% 18% 5%);
+      margin-bottom:-40px;
+    }
     #loader-bar-wrap{width:min(360px,70vw);height:1px;background:rgba(255,255,255,0.1);}
     #loader-bar{height:100%;width:0%;background:#fff;animation:barFill 2s var(--ease-out) forwards;}
     @keyframes barFill{to{width:100%;}}
@@ -243,7 +248,14 @@
       display:flex;align-items:center;justify-content:center;
     }
     .gallery-slide.active{opacity:1;z-index:1;}
-    .gallery-slide img{width:100%;height:100%;object-fit:contain;}
+    .gallery-slide img{width:100%;height:100%;object-fit:cover;}
+    .gallery-fullscreen-btn{
+      position:absolute;top:16px;right:16px;
+      background:rgba(255,255,255,0.8);border:none;width:40px;height:40px;
+      border-radius:8px;cursor:pointer;z-index:3;display:flex;
+      align-items:center;justify-content:center;transition:background 0.2s;
+    }
+    .gallery-fullscreen-btn:hover{background:#fff;}
     .gallery-btn{
       position:absolute;top:50%;transform:translateY(-50%);
       background:rgba(255,255,255,0.8);border:none;width:44px;height:44px;
@@ -309,9 +321,9 @@
 
 <!-- LOADER -->
 <div id="loader">
-  <div class="loader-logo">MARS<span>/</span>ROVER <span>&mdash;</span> 2.0</div>
+  <img src="blueprint.jpeg" class="loader-sketch" alt="Rover Sketch"/>
   <div id="loader-bar-wrap"><div id="loader-bar"></div></div>
-  <div class="loader-sub">Initializing Systems</div>
+  <div class="loader-sub">AI AND ROBOTICS PROJECT / FAST NUCES ISLAMABAD</div>
 </div>
 
 <!-- NAV -->
@@ -608,6 +620,9 @@
     <div class="section-label" style="text-align:center;">// Media</div>
     <h2 class="section-title" style="text-align:center;margin-bottom:40px;">Gallery</h2>
     <div class="gallery-container">
+      <button class="gallery-fullscreen-btn" aria-label="Full Screen" onclick="toggleFullScreen()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+      </button>
       <div class="gallery-slide active"><img src="1.jpeg" alt="Gallery Image 1"/></div>
       <div class="gallery-slide"><img src="2.jpeg" alt="Gallery Image 2"/></div>
       <div class="gallery-slide"><img src="3.jpeg" alt="Gallery Image 3"/></div>
@@ -717,6 +732,18 @@
   function setGallery(index) {
     currentSlide = index;
     updateGallery();
+  }
+  function toggleFullScreen() {
+    var elem = document.querySelector(".gallery-container");
+    if (!document.fullscreenElement) {
+      if (elem.requestFullscreen) { elem.requestFullscreen(); }
+      else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); }
+      else if (elem.msRequestFullscreen) { elem.msRequestFullscreen(); }
+    } else {
+      if (document.exitFullscreen) { document.exitFullscreen(); }
+      else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
+      else if (document.msExitFullscreen) { document.msExitFullscreen(); }
+    }
   }
 </script>
 </body>
