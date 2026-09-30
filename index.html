@@ -9,11 +9,11 @@
   <meta property="og:type" content="website"/>
   <title>MARS Rover 2.0 | AI and robotics project</title>
 
-  <link rel="preload" href="rover.glb" as="fetch" crossorigin="anonymous"/>
+  <link rel="preload" href="rover.glb?v=2" as="fetch" crossorigin="anonymous"/>
   <!-- model-viewer: Google's official GLB component.
        Handles loading, WebGL, touch/mouse orbit, lazy-loading
        and HTTP caching automatically. Works on Vercel out of the box. -->
-  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
@@ -382,7 +382,7 @@
 <div id="viewer-section">
   <model-viewer
     id="rover-model"
-    src="rover.glb"
+    src="rover.glb?v=2"
     alt="MARS Rover 2.0 interactive 3D model"
     camera-controls
     auto-rotate
