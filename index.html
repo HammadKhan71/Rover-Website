@@ -14,10 +14,8 @@
   <script>/* v4 - stale page check */if(document.querySelector&&!document.querySelector('[data-v="4"]')){location.reload(true);}</script>
 
   <link rel="preload" href="rover.glb?v=3" as="fetch" crossorigin="anonymous"/>
-  <!-- model-viewer: Google's official GLB component.
-       Handles loading, WebGL, touch/mouse orbit, lazy-loading
-       and HTTP caching automatically. Works on Vercel out of the box. -->
-  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <!-- model-viewer from both CDNs for maximum reliability -->
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
