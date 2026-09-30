@@ -226,9 +226,42 @@
       padding:6px 14px;border-radius:50px;background:var(--near-black);color:#fff;
     }
     .ros2-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
-    .ros2-images{display:flex;flex-direction:column;gap:24px;}
-    .ros-img{width:100%;border-radius:var(--radius);object-fit:cover;border:1px solid var(--light-gray);box-shadow:0 8px 32px rgba(0,0,0,0.08);}
-    .blueprint-img{width:100%;margin-top:40px;border-radius:var(--radius);border:1px solid var(--light-gray);box-shadow:0 8px 32px rgba(0,0,0,0.08);}
+    .ros2-images{display:flex;flex-direction:column;gap:24px;align-items:center;}
+    .ros-img{width:80%;max-width:400px;border-radius:var(--radius);object-fit:cover;border:1px solid var(--light-gray);box-shadow:0 8px 32px rgba(0,0,0,0.08);}
+    .blueprint-img{width:80%;max-width:380px;margin-top:30px;border-radius:var(--radius);border:1px solid var(--light-gray);box-shadow:0 8px 32px rgba(0,0,0,0.08);display:block;}
+
+    /* ── GALLERY ── */
+    #gallery{background:var(--near-white);}
+    .gallery-container{
+      position:relative;max-width:900px;margin:0 auto;
+      border-radius:var(--radius);overflow:hidden;
+      box-shadow:0 8px 32px rgba(0,0,0,0.08);
+      aspect-ratio:16/9;background:#000;
+    }
+    .gallery-slide{
+      position:absolute;inset:0;opacity:0;transition:opacity 0.5s ease;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .gallery-slide.active{opacity:1;z-index:1;}
+    .gallery-slide img{width:100%;height:100%;object-fit:cover;}
+    .gallery-btn{
+      position:absolute;top:50%;transform:translateY(-50%);
+      background:rgba(255,255,255,0.8);border:none;width:44px;height:44px;
+      border-radius:50%;cursor:pointer;z-index:2;display:flex;
+      align-items:center;justify-content:center;transition:background 0.2s;
+    }
+    .gallery-btn:hover{background:#fff;}
+    .gallery-prev{left:16px;}
+    .gallery-next{right:16px;}
+    .gallery-dots{
+      position:absolute;bottom:16px;left:50%;transform:translateX(-50%);
+      display:flex;gap:8px;z-index:2;
+    }
+    .gallery-dot{
+      width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.4);
+      cursor:pointer;transition:background 0.2s;
+    }
+    .gallery-dot.active{background:#fff;}
 
     /* ── SPECS ── */
     #specs{background:var(--white);}
@@ -290,6 +323,7 @@
     <li><a href="#mission">Mission</a></li>
     <li><a href="#ros2">Software</a></li>
     <li><a href="#specs">Specs</a></li>
+    <li><a href="#gallery">Gallery</a></li>
   </ul>
   <button class="nav-hamburger" id="hamburger" aria-label="Menu">
     <span></span><span></span><span></span>
@@ -301,6 +335,7 @@
   <li><a href="#mission">Mission</a></li>
   <li><a href="#ros2">Software</a></li>
   <li><a href="#specs">Specs</a></li>
+  <li><a href="#gallery">Gallery</a></li>
 </ul>
 
 <!-- HERO -->
@@ -565,6 +600,38 @@
   </div>
 </section>
 
+<div class="section-divider"></div>
+
+<!-- GALLERY -->
+<section id="gallery">
+  <div class="anim-hidden">
+    <div class="section-label" style="text-align:center;">// Media</div>
+    <h2 class="section-title" style="text-align:center;margin-bottom:40px;">Gallery</h2>
+    <div class="gallery-container">
+      <div class="gallery-slide active"><img src="1.jpeg" alt="Gallery Image 1"/></div>
+      <div class="gallery-slide"><img src="2.jpeg" alt="Gallery Image 2"/></div>
+      <div class="gallery-slide"><img src="3.jpeg" alt="Gallery Image 3"/></div>
+      <div class="gallery-slide"><img src="4.jpeg" alt="Gallery Image 4"/></div>
+      <div class="gallery-slide"><img src="5.jpeg" alt="Gallery Image 5"/></div>
+      
+      <button class="gallery-btn gallery-prev" aria-label="Previous image" onclick="moveGallery(-1)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <button class="gallery-btn gallery-next" aria-label="Next image" onclick="moveGallery(1)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+      
+      <div class="gallery-dots">
+        <div class="gallery-dot active" onclick="setGallery(0)"></div>
+        <div class="gallery-dot" onclick="setGallery(1)"></div>
+        <div class="gallery-dot" onclick="setGallery(2)"></div>
+        <div class="gallery-dot" onclick="setGallery(3)"></div>
+        <div class="gallery-dot" onclick="setGallery(4)"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <footer>
   <div class="footer-logo">MARS ROVER 2.0</div>
   <div class="footer-copy">Engineering Project &copy; 2024</div>
@@ -599,7 +666,7 @@
     updateNav();
   }, { passive: true });
   function updateNav() {
-    var ids = ['about','components','mission','ros2','specs'];
+    var ids = ['about','components','mission','ros2','specs','gallery'];
     var links = document.querySelectorAll('.nav-links li a');
     var cur = '';
     ids.forEach(function(id) {
@@ -633,6 +700,23 @@
         mv.removeAttribute('auto-rotate');
       }
     });
+  }
+
+  // GALLERY
+  var currentSlide = 0;
+  var slides = document.querySelectorAll('.gallery-slide');
+  var dots = document.querySelectorAll('.gallery-dot');
+  function updateGallery() {
+    slides.forEach(function(s, i) { s.classList.toggle('active', i === currentSlide); });
+    dots.forEach(function(d, i) { d.classList.toggle('active', i === currentSlide); });
+  }
+  function moveGallery(step) {
+    currentSlide = (currentSlide + step + slides.length) % slides.length;
+    updateGallery();
+  }
+  function setGallery(index) {
+    currentSlide = index;
+    updateGallery();
   }
 </script>
 </body>
