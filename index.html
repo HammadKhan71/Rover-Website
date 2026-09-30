@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="MARS Rover 2.0 - Autonomous Mars surface exploration rover featuring LiDAR, ROS2, soil sampling and solar power."/>
+  <meta property="og:title" content="MARS Rover 2.0 | Engineering Project"/>
+  <meta property="og:description" content="Autonomous. Intelligent. Exploratory."/>
+  <meta property="og:type" content="website"/>
+  <title>MARS Rover 2.0 | Engineering Project</title>
+
+  <!-- model-viewer: Google's official GLB component.
+       Handles loading, WebGL, touch/mouse orbit, lazy-loading
+       and HTTP caching automatically. Works on Vercel out of the box. -->
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root{
+      --white:#FFFFFF;--near-white:#F7F7F7;--light-gray:#E5E5EA;
+      --mid-gray:#8E8E93;--dark-gray:#3A3A3C;--near-black:#1C1C1E;
+      --font-main:'Inter',sans-serif;--font-mono:'JetBrains Mono',monospace;
+      --nav-h:64px;--ease-out:cubic-bezier(0.22,1,0.36,1);--radius:16px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:var(--font-main);background:var(--white);color:var(--near-black);overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+    a{text-decoration:none;color:inherit;}
+
+    /* ── LOADER ── */
+    #loader{
+      position:fixed;inset:0;background:#080808;z-index:9999;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;
+      transition:opacity 0.8s ease,transform 0.8s var(--ease-out);
+    }
+    #loader.hide{opacity:0;transform:translateY(-100%);pointer-events:none;}
+    .loader-logo{font-family:var(--font-mono);font-size:clamp(20px,4vw,36px);font-weight:700;letter-spacing:0.15em;color:#fff;text-align:center;}
+    .loader-logo span{color:rgba(255,255,255,0.3);}
+    #loader-bar-wrap{width:min(360px,70vw);height:1px;background:rgba(255,255,255,0.1);}
+    #loader-bar{height:100%;width:0%;background:#fff;animation:barFill 2s var(--ease-out) forwards;}
+    @keyframes barFill{to{width:100%;}}
+    .loader-sub{font-family:var(--font-mono);font-size:11px;letter-spacing:0.3em;color:rgba(255,255,255,0.3);text-transform:uppercase;}
+
+    /* ── NAV ── */
+    #nav{
+      position:fixed;top:0;left:0;right:0;height:var(--nav-h);z-index:1000;
+      display:flex;align-items:center;justify-content:space-between;padding:0 5%;
+      background:rgba(255,255,255,0.88);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+      transition:border-bottom 0.3s;
+    }
+    #nav.scrolled{border-bottom:1px solid var(--light-gray);}
+    .nav-logo{font-family:var(--font-mono);font-size:13px;font-weight:700;letter-spacing:0.06em;color:var(--near-black);white-space:nowrap;}
+    .nav-logo span{color:var(--mid-gray);font-weight:400;}
+    .nav-links{display:flex;gap:0;list-style:none;}
+    .nav-links li a{
+      display:block;padding:8px 14px;font-size:13px;font-weight:500;
+      color:var(--dark-gray);position:relative;transition:color 0.2s;letter-spacing:0.02em;
+    }
+    .nav-links li a::after{
+      content:'';position:absolute;bottom:2px;left:14px;right:14px;height:1.5px;
+      background:var(--near-black);transform:scaleX(0);transform-origin:left;
+      transition:transform 0.25s var(--ease-out);
+    }
+    .nav-links li a:hover::after,.nav-links li a.active::after{transform:scaleX(1);}
+    .nav-links li a:hover,.nav-links li a.active{color:var(--near-black);}
+    .nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:4px;}
+    .nav-hamburger span{display:block;width:22px;height:2px;background:var(--near-black);border-radius:2px;transition:0.3s;}
+    .nav-mobile{display:none;position:fixed;top:var(--nav-h);left:0;right:0;background:rgba(255,255,255,0.97);backdrop-filter:blur(20px);padding:12px 0;border-bottom:1px solid var(--light-gray);z-index:999;}
+    .nav-mobile li{list-style:none;}
+    .nav-mobile li a{display:block;padding:12px 5%;font-size:15px;font-weight:500;color:var(--dark-gray);}
+    .nav-mobile.open{display:block;}
+
+    /* ── HERO ── */
+    #hero{
+      min-height:100svh;display:flex;flex-direction:column;align-items:center;
+      justify-content:center;text-align:center;padding:var(--nav-h) 5% 40px;
+      position:relative;overflow:hidden;
+    }
+    .hero-grid{
+      position:absolute;inset:0;
+      background-image:linear-gradient(var(--light-gray) 1px,transparent 1px),
+                       linear-gradient(90deg,var(--light-gray) 1px,transparent 1px);
+      background-size:60px 60px;
+      mask-image:radial-gradient(ellipse 80% 60% at 50% 50%,black 0%,transparent 100%);
+      -webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 50%,black 0%,transparent 100%);
+      opacity:0.35;pointer-events:none;
+    }
+    .hero-content{position:relative;z-index:1;max-width:960px;}
+    .hero-label{
+      font-family:var(--font-mono);font-size:11px;letter-spacing:0.35em;
+      color:var(--mid-gray);text-transform:uppercase;margin-bottom:28px;
+      opacity:0;animation:fadeUp 0.7s ease 2.6s forwards;
+    }
+    .hero-title{
+      font-size:clamp(52px,10vw,118px);font-weight:900;line-height:0.93;
+      letter-spacing:-0.04em;color:var(--near-black);margin-bottom:28px;
+    }
+    .hero-title .word{display:inline-block;opacity:0;transform:translateY(50px);}
+    .hero-title .word:nth-child(1){animation:wordDrop 0.8s var(--ease-out) 2.7s forwards;margin-right:0.18em;}
+    .hero-title .word:nth-child(2){animation:wordDrop 0.8s var(--ease-out) 2.95s forwards;margin-right:0.18em;}
+    .hero-title .word:nth-child(3){animation:wordDrop 0.8s var(--ease-out) 3.2s forwards;}
+    @keyframes wordDrop{to{opacity:1;transform:translateY(0);}}
+    .hero-sub{
+      font-size:clamp(13px,2vw,17px);font-weight:400;color:var(--mid-gray);
+      letter-spacing:0.2em;text-transform:uppercase;margin-bottom:48px;
+      opacity:0;animation:fadeUp 0.8s ease 3.6s forwards;
+    }
+    .hero-btns{
+      display:flex;gap:14px;justify-content:center;flex-wrap:wrap;
+      opacity:0;animation:fadeUp 0.8s ease 3.9s forwards;
+    }
+    .btn-primary{
+      padding:13px 32px;background:var(--near-black);color:#fff;
+      font-size:13px;font-weight:600;border-radius:50px;letter-spacing:0.04em;
+      border:none;cursor:pointer;font-family:var(--font-main);
+      transition:transform 0.2s,box-shadow 0.2s;
+    }
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,0.2);}
+    .btn-outline{
+      padding:13px 32px;background:transparent;color:var(--near-black);
+      font-size:13px;font-weight:600;border-radius:50px;letter-spacing:0.04em;
+      border:1.5px solid var(--dark-gray);cursor:pointer;font-family:var(--font-main);
+      transition:transform 0.2s,background 0.2s,color 0.2s;
+    }
+    .btn-outline:hover{background:var(--near-black);color:#fff;transform:translateY(-2px);}
+    .hero-arrow{margin-top:56px;opacity:0;animation:fadeUp 0.8s ease 4.3s forwards;}
+    .hero-arrow svg{animation:bounce 2s ease-in-out infinite;}
+    @keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(8px);}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+    /* ── 3D MODEL VIEWER ── */
+    /* No borders, no overlay text, pure white, full-bleed */
+    #viewer-section{
+      width:100%;
+      background:#fff;
+      /* no border-top, no border-bottom */
+    }
+    model-viewer{
+      width:100%;
+      height:min(85vh,760px);
+      background-color:#ffffff;
+      --progress-bar-color:var(--near-black);
+      --progress-bar-height:1px;
+    }
+    /* Hide model-viewer's own interaction prompt / AR button */
+    model-viewer::part(default-progress-bar){background:var(--near-black);height:1px;}
+    model-viewer::part(default-ar-button){display:none;}
+
+    /* ── SECTIONS ── */
+    section{padding:100px 5%;}
+    .section-label{font-family:var(--font-mono);font-size:11px;letter-spacing:0.3em;color:var(--mid-gray);text-transform:uppercase;margin-bottom:12px;}
+    .section-title{font-size:clamp(28px,4vw,52px);font-weight:800;letter-spacing:-0.025em;color:var(--near-black);margin-bottom:16px;line-height:1.1;}
+    .section-desc{font-size:16px;color:var(--mid-gray);max-width:580px;line-height:1.75;}
+    .anim-hidden{opacity:0;transform:translateY(32px);transition:opacity 0.7s var(--ease-out),transform 0.7s var(--ease-out);}
+    .anim-visible{opacity:1;transform:translateY(0);}
+
+    /* ── ABOUT ── */
+    #about{background:var(--white);}
+    .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:start;}
+    .about-text p{font-size:16px;color:var(--mid-gray);line-height:1.85;margin-bottom:18px;}
+    .about-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+    .stat-card{
+      background:var(--near-white);border-radius:var(--radius);padding:26px 22px;
+      border:1px solid var(--light-gray);transition:box-shadow 0.3s,transform 0.3s;
+    }
+    .stat-card:hover{box-shadow:0 10px 40px rgba(0,0,0,0.07);transform:translateY(-3px);}
+    .stat-num{font-size:32px;font-weight:800;letter-spacing:-0.03em;color:var(--near-black);margin-bottom:5px;}
+    .stat-lbl{font-size:11px;color:var(--mid-gray);font-weight:500;letter-spacing:0.06em;text-transform:uppercase;}
+
+    /* ── COMPONENTS ── */
+    #components{background:var(--near-white);}
+    .comp-header{margin-bottom:52px;}
+    .comp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+    .comp-card{
+      background:var(--white);border-radius:var(--radius);padding:20px 18px;
+      border:1px solid var(--light-gray);
+      transition:box-shadow 0.3s,transform 0.3s,border-color 0.3s;
+      display:flex;align-items:flex-start;gap:14px;
+    }
+    .comp-card:hover{box-shadow:0 8px 32px rgba(0,0,0,0.08);transform:translateY(-2px);border-color:var(--dark-gray);}
+    .comp-icon{
+      width:38px;height:38px;min-width:38px;border-radius:9px;
+      background:var(--near-black);display:flex;align-items:center;justify-content:center;
+    }
+    .comp-icon svg{color:#fff;}
+    .comp-name{font-size:13px;font-weight:600;color:var(--near-black);margin-bottom:3px;line-height:1.3;}
+    .comp-qty{font-family:var(--font-mono);font-size:11px;color:var(--mid-gray);letter-spacing:0.04em;}
+    .comp-tag{
+      display:inline-block;margin-top:7px;padding:2px 9px;border-radius:50px;
+      font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;
+      background:var(--near-white);border:1px solid var(--light-gray);color:var(--mid-gray);
+    }
+
+    /* ── MISSION CAPABILITIES ── */
+    #mission{background:var(--white);}
+    .mission-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;margin-top:52px;}
+    .mission-card{
+      border-radius:var(--radius);padding:32px 28px;border:1px solid var(--light-gray);
+      transition:box-shadow 0.3s,transform 0.3s;
+    }
+    .mission-card:hover{box-shadow:0 12px 40px rgba(0,0,0,0.07);transform:translateY(-3px);}
+    .mission-card-icon{
+      width:44px;height:44px;border-radius:11px;background:var(--near-black);
+      display:flex;align-items:center;justify-content:center;margin-bottom:20px;
+    }
+    .mission-card-icon svg{color:#fff;}
+    .mission-card-title{font-size:15px;font-weight:700;color:var(--near-black);margin-bottom:8px;letter-spacing:-0.01em;}
+    .mission-card-desc{font-size:14px;color:var(--mid-gray);line-height:1.7;}
+
+    /* ── ROS2 ── */
+    #ros2{background:var(--near-white);}
+    .ros2-inner{max-width:760px;}
+    .ros2-features{display:flex;flex-direction:column;gap:10px;margin-top:28px;}
+    .ros2-feature{
+      display:flex;align-items:center;gap:12px;padding:14px 18px;
+      background:var(--white);border-radius:12px;border:1px solid var(--light-gray);
+    }
+    .ros2-dot{width:7px;height:7px;border-radius:50%;background:var(--near-black);flex-shrink:0;}
+    .ros2-feature-text{font-size:14px;font-weight:500;color:var(--dark-gray);}
+    .ros2-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px;}
+    .ros2-tag{
+      font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:0.08em;
+      padding:6px 14px;border-radius:50px;background:var(--near-black);color:#fff;
+    }
+
+    /* ── SPECS ── */
+    #specs{background:var(--white);}
+    .specs-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;}
+    .specs-table{border-collapse:collapse;width:100%;margin-top:24px;}
+    .specs-table tr{border-bottom:1px solid var(--light-gray);}
+    .specs-table tr:last-child{border-bottom:none;}
+    .specs-table td{padding:14px 0;font-size:14px;vertical-align:top;line-height:1.5;}
+    .specs-table td:first-child{
+      font-weight:600;color:var(--near-black);width:45%;
+      font-family:var(--font-mono);font-size:12px;letter-spacing:0.04em;padding-right:16px;
+    }
+    .specs-table td:last-child{color:var(--dark-gray);}
+
+    .section-divider{height:1px;background:var(--light-gray);margin:0 5%;}
+
+    footer{
+      padding:48px 5%;border-top:1px solid var(--light-gray);
+      display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
+      gap:16px;background:var(--white);
+    }
+    .footer-logo{font-family:var(--font-mono);font-size:13px;font-weight:700;letter-spacing:0.08em;}
+    .footer-copy{font-size:13px;color:var(--mid-gray);}
+    .footer-badge{
+      font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;
+      color:var(--mid-gray);border:1px solid var(--light-gray);padding:4px 12px;border-radius:50px;
+    }
+
+    @media(max-width:768px){
+      .nav-links{display:none;}
+      .nav-hamburger{display:flex;}
+      .about-grid,.specs-grid{grid-template-columns:1fr;gap:40px;}
+      .about-stats{grid-template-columns:repeat(3,1fr);}
+      .comp-grid{grid-template-columns:1fr 1fr;}
+      section{padding:72px 5%;}
+    }
+    @media(max-width:480px){
+      .about-stats{grid-template-columns:1fr 1fr;}
+      .comp-grid{grid-template-columns:1fr;}
+      .hero-btns{flex-direction:column;align-items:center;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-logo">MARS<span>/</span>ROVER <span>&mdash;</span> 2.0</div>
+  <div id="loader-bar-wrap"><div id="loader-bar"></div></div>
+  <div class="loader-sub">Initializing Systems</div>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="nav-logo">MARS Rover <span>/</span> 2.0</div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#components">Components</a></li>
+    <li><a href="#mission">Mission</a></li>
+    <li><a href="#ros2">Software</a></li>
+    <li><a href="#specs">Specs</a></li>
+  </ul>
+  <button class="nav-hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<ul class="nav-mobile" id="nav-mobile">
+  <li><a href="#about">About</a></li>
+  <li><a href="#components">Components</a></li>
+  <li><a href="#mission">Mission</a></li>
+  <li><a href="#ros2">Software</a></li>
+  <li><a href="#specs">Specs</a></li>
+</ul>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-label">Engineering Project &mdash; Mars Surface Exploration</div>
+    <h1 class="hero-title">
+      <span class="word">MARS</span>
+      <span class="word">ROVER</span>
+      <span class="word">2.0</span>
+    </h1>
+    <p class="hero-sub">Autonomous &nbsp;&middot;&nbsp; Intelligent &nbsp;&middot;&nbsp; Exploratory</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="document.getElementById('viewer-section').scrollIntoView({behavior:'smooth'})">View 3D Model</button>
+      <button class="btn-outline" onclick="document.getElementById('components').scrollIntoView({behavior:'smooth'})">View Components</button>
+    </div>
+    <div class="hero-arrow">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 5v14M5 12l7 7 7-7"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 3D VIEWER — model-viewer handles everything:
+     lazy loading, progress bar, mouse/touch orbit, HTTP caching on Vercel -->
+<div id="viewer-section">
+  <model-viewer
+    id="rover-model"
+    src="Meshy_AI_Rover_Arm_Prototype_0925175105_texture.glb"
+    alt="MARS Rover 2.0 interactive 3D model"
+    camera-controls
+    auto-rotate
+    auto-rotate-delay="0"
+    rotation-per-second="20deg"
+    shadow-intensity="0.4"
+    shadow-softness="1"
+    exposure="1.1"
+    environment-image="neutral"
+    loading="eager"
+    reveal="auto"
+    touch-action="pan-y"
+    interaction-prompt="none"
+    style="--progress-bar-color:#1C1C1E;--progress-bar-height:1px;"
+  ></model-viewer>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-grid anim-hidden">
+    <div class="about-text">
+      <div class="section-label">// Overview</div>
+      <h2 class="section-title">Built for<br/>the Red Planet</h2>
+      <p>MARS Rover 2.0 is a fully autonomous surface exploration rover engineered to simulate Mars mission objectives &mdash; soil sampling, terrain navigation, environmental sensing, and real-time telemetry.</p>
+      <p>Powered by a Raspberry Pi 4B running ROS2, the rover integrates long-range LiDAR, ultrasonic proximity sensors, a multi-axis robotic arm with servo actuators, and a solar power management system.</p>
+      <p>The chassis is actuated by MG996R and SG90 servo motors through a precision gear system, with 3D-printed structural panels providing a lightweight yet rigid frame.</p>
+    </div>
+    <div class="about-stats">
+      <div class="stat-card"><div class="stat-num">13</div><div class="stat-lbl">Servo Motors</div></div>
+      <div class="stat-card"><div class="stat-num">40m</div><div class="stat-lbl">LiDAR Range</div></div>
+      <div class="stat-card"><div class="stat-num">2x</div><div class="stat-lbl">Solar Panels</div></div>
+      <div class="stat-card"><div class="stat-num">ROS2</div><div class="stat-lbl">Framework</div></div>
+      <div class="stat-card"><div class="stat-num">12x</div><div class="stat-lbl">Battery Cells</div></div>
+      <div class="stat-card"><div class="stat-num">6-DOF</div><div class="stat-lbl">Robotic Arm</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- COMPONENTS -->
+<section id="components">
+  <div class="comp-header anim-hidden">
+    <div class="section-label">// Hardware</div>
+    <h2 class="section-title">Components</h2>
+    <p class="section-desc">Every part of MARS Rover 2.0 was selected for reliability, power efficiency, and mission performance.</p>
+  </div>
+  <div class="comp-grid">
+
+    <div class="comp-card anim-hidden" style="transition-delay:0.04s">
+      <div class="comp-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M8 6V4M16 6V4M2 10h20"/></svg></div>
+      <div><div class="comp-name">Raspberry Pi 4B</div><div class="comp-qty">Qty: 1</div><div class="comp-tag">Computing</div></div>
+    </div>
+
+    <div class="comp-card anim-hidden" style="transition-delay:0.08s">
+      <div class="comp-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></div>
+      <div><div class="comp-name">Benewake TF03 IP67 LiDAR</div><div class="comp-qty">Qty: 1 &middot; 40m range</div><div class="comp-tag">Sensing</div></div>
+    </div>
+
+    <div class="comp-card anim-hidden" style="transition-delay:0.12s">
+      <div class="comp-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+      <div><div class="comp-name">HC-SR04 Ultrasonic Sensor</div><div class="comp-qty">Qty: 3</div><div class="comp-tag">Sensing</div></div>
+    </div>
+
+    <div class="comp-card anim-hidden" style="transition-delay:0.16s">
+      <div class="comp-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 8v4l3 3"/></svg></div>
+      <div><div class="comp-name">Soil Moisture Sensor FC-28</div><div class="comp-qty">Qty: 1</div><div class="comp-tag">Sensing</div></div>
+    </div>
+
+    <div class="comp-card anim-hidden" style="transition-delay:0.20s">
+      <div class="comp-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg></div>
+      <div><div class="comp-name">LDR Light Dependent Resistor</div><div class="comp-qty">Qty: 4</div><div class="comp-tag">Sensing</div></div>
+    </div>
+
+    <div class="comp-card anim-hidden" style="transition-delay:0.24s">
+      <div class="comp-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+      <div><div class="comp-name">Solar Panels</div><div class="comp-qty">Qty: 2</div><div class="comp-tag">Power</div></div>
+    </div>
+
+    <div class="comp-card anim-hidden" style="transition-delay:0.28s">
+      <div class="comp-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="18" height="12" rx="2"/><line x1="23" y1="11" x2="23" y2="13"/></svg></div>
+      <div><div class="comp-name">3.6V Battery Cells</div><div class="comp-qty">Qty: 12</div><div class="comp-tag">Power</div></div>
+    </div>
+
+    <div class="comp-card anim-hidden" style="transition-delay:0.32s">
+      <div class="comp-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+      <div><div class="comp-name">LM2596 Buck Converter</div><div class="comp-qty">Qty: 2</div><div class="comp-tag">Power</div></div>
+    </div>
+
+    <div class="comp-card anim-hidden" style="transition-delay:0.36s">
+      <div class="comp-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+      <div><div class="comp-name">Shockley 300W 10A CC CV Buck</div><div class="comp-qty">Qty: 1</div><div class="comp-tag">Power</div></div>
+    </div>
+
+    <div class="comp-card anim-hidden" style="transition-delay:0.40s">
+      <div class="comp-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a5 5 0 0 1 5 5v14a2 2 0 0 1-4 0V7a1 1 0 0 0-2 0v14a2 2 0 0 1-4 0V7a5 5 0 0 1 5-5z"/></svg></div>
+      <div><div class="comp-name">MG996R Servo Motor</div><div class="comp-qty">Qty: 7 &middot; High torque</div><div class="comp-tag">Actuation</div></div>
+    </div>
+
+    <div class="comp-card anim-hidden" style="transition-delay:0.44s">
+      <div class="comp-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a5 5 0 0 1 5 5v14a2 2 0 0 1-4 0V7a1 1 0 0 0-2 0v14a2 2 0 0 1-4 0V7a5 5 0 0 1 5-5z"/></svg></div>
+      <div><div class="comp-name">SG90 Micro Servo Motor</div><div class="comp-qty">Qty: 6 &middot; Lightweight</div><div class="comp-tag">Actuation</div></div>
+    </div>
+
+    <div class="comp-card anim-hidden" style="transition-delay:0.48s">
+      <div class="comp-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg></div>
+      <div><div class="comp-name">Rover Chassis</div><div class="comp-qty">Qty: 1</div><div class="comp-tag">Structure</div></div>
+    </div>
+
+    <div class="comp-card anim-hidden" style="transition-delay:0.52s">
+      <div class="comp-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+      <div><div class="comp-name">Precision Gears</div><div class="comp-qty">Drive train gear set</div><div class="comp-tag">Structure</div></div>
+    </div>
+
+    <div class="comp-card anim-hidden" style="transition-delay:0.56s">
+      <div class="comp-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+      <div><div class="comp-name">3D Printed Structural Panels</div><div class="comp-qty">Custom PETG panels</div><div class="comp-tag">Structure</div></div>
+    </div>
+
+    <div class="comp-card anim-hidden" style="transition-delay:0.60s">
+      <div class="comp-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="9"/></svg></div>
+      <div><div class="comp-name">Ball Bearings</div><div class="comp-qty">Qty: 3 &middot; Precision grade</div><div class="comp-tag">Mechanical</div></div>
+    </div>
+
+    <div class="comp-card anim-hidden" style="transition-delay:0.64s">
+      <div class="comp-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+      <div><div class="comp-name">Soil Sampling Drill Bit</div><div class="comp-qty">Qty: 1 &middot; Motorized</div><div class="comp-tag">Sampling</div></div>
+    </div>
+
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- MISSION CAPABILITIES -->
+<section id="mission">
+  <div class="anim-hidden">
+    <div class="section-label">// Mission Objectives</div>
+    <h2 class="section-title">Capabilities</h2>
+    <p class="section-desc">Engineered around four core Mars analog mission objectives.</p>
+  </div>
+  <div class="mission-grid">
+    <div class="mission-card anim-hidden" style="transition-delay:0.05s">
+      <div class="mission-card-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+      <div class="mission-card-title">Terrain Navigation</div>
+      <div class="mission-card-desc">Autonomous obstacle detection and pathfinding using TF03 LiDAR (40m range) and 3&times; HC-SR04 ultrasonic sensors for close-range proximity mapping.</div>
+    </div>
+    <div class="mission-card anim-hidden" style="transition-delay:0.10s">
+      <div class="mission-card-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </div>
+      <div class="mission-card-title">Soil Sampling</div>
+      <div class="mission-card-desc">A 6-DOF robotic arm with motorized drill bit end-effector enables autonomous core sampling. FC-28 moisture sensor analyzes soil composition in real time.</div>
+    </div>
+    <div class="mission-card anim-hidden" style="transition-delay:0.15s">
+      <div class="mission-card-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      </div>
+      <div class="mission-card-title">Solar Power Management</div>
+      <div class="mission-card-desc">Dual solar panels with LDR-guided tracking charge 12&times; 3.6V Li-ion cells. Shockley 300W + LM2596 converters regulate voltage for all subsystems.</div>
+    </div>
+    <div class="mission-card anim-hidden" style="transition-delay:0.20s">
+      <div class="mission-card-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <div class="mission-card-title">Real-Time Telemetry</div>
+      <div class="mission-card-desc">ROS2 nodes publish live sensor data &mdash; LiDAR point clouds, IMU orientation, battery state, and arm position &mdash; over DDS for ground-station monitoring.</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ROS2 SOFTWARE — text only, no image -->
+<section id="ros2">
+  <div class="ros2-inner anim-hidden">
+    <div class="section-label">// Software Stack</div>
+    <h2 class="section-title">Powered by ROS 2</h2>
+    <p class="section-desc">The rover runs on ROS 2 (Robot Operating System 2), a robust middleware framework providing real-time communication between sensor nodes, motor controllers, and decision-making modules.</p>
+    <div class="ros2-features">
+      <div class="ros2-feature"><div class="ros2-dot"></div><div class="ros2-feature-text">DDS-based publish/subscribe messaging between distributed nodes</div></div>
+      <div class="ros2-feature"><div class="ros2-dot"></div><div class="ros2-feature-text">LiDAR point cloud processing &amp; obstacle avoidance algorithms</div></div>
+      <div class="ros2-feature"><div class="ros2-dot"></div><div class="ros2-feature-text">Real-time sensor fusion: LiDAR + ultrasonic + IMU pipeline</div></div>
+      <div class="ros2-feature"><div class="ros2-dot"></div><div class="ros2-feature-text">Autonomous arm control &amp; soil drill sequencing via action servers</div></div>
+      <div class="ros2-feature"><div class="ros2-dot"></div><div class="ros2-feature-text">Solar tracking loop via LDR differential feedback controller</div></div>
+    </div>
+    <div class="ros2-tags">
+      <span class="ros2-tag">ROS 2 HUMBLE</span>
+      <span class="ros2-tag">UBUNTU 22.04</span>
+      <span class="ros2-tag">DDS / FASTRTPS</span>
+      <span class="ros2-tag">PYTHON 3.10</span>
+      <span class="ros2-tag">RCLPY</span>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- SPECS -->
+<section id="specs">
+  <div class="specs-grid">
+    <div class="anim-hidden">
+      <div class="section-label">// Technical Specs</div>
+      <h2 class="section-title">Specifications</h2>
+      <p class="section-desc">Complete technical breakdown of the MARS Rover 2.0 hardware and software architecture.</p>
+    </div>
+    <div class="anim-hidden" style="transition-delay:0.15s">
+      <table class="specs-table">
+        <tr><td>Processor</td><td>Raspberry Pi 4B &mdash; ARM Cortex-A72 @ 1.8GHz</td></tr>
+        <tr><td>OS / Framework</td><td>Ubuntu 22.04 LTS + ROS 2 Humble</td></tr>
+        <tr><td>LiDAR</td><td>Benewake TF03 IP67 &mdash; 40m range, 100Hz</td></tr>
+        <tr><td>Proximity</td><td>3x HC-SR04 Ultrasonic &mdash; 2cm to 400cm</td></tr>
+        <tr><td>Drive Motors</td><td>7x MG996R High Torque + 6x SG90 Micro Servo</td></tr>
+        <tr><td>Power Source</td><td>12x 3.6V Li-ion cells + 2x Solar Panels</td></tr>
+        <tr><td>Voltage Regulation</td><td>2x LM2596 + 1x Shockley 300W CC CV Buck</td></tr>
+        <tr><td>Sensors</td><td>FC-28 Soil Moisture, 4x LDR, TF03 LiDAR</td></tr>
+        <tr><td>Arm DOF</td><td>6 Degrees of Freedom</td></tr>
+        <tr><td>Construction</td><td>3D Printed PETG Panels, Precision Gears, Ball Bearings</td></tr>
+        <tr><td>Sampling Tool</td><td>Motorized Soil Drill Bit</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">MARS ROVER 2.0</div>
+  <div class="footer-copy">Engineering Project &copy; 2024</div>
+  <div class="footer-badge">AUTONOMOUS &middot; INTELLIGENT &middot; EXPLORATORY</div>
+</footer>
+
+<script>
+  // LOADER
+  window.addEventListener('load', function() {
+    setTimeout(function() { document.getElementById('loader').classList.add('hide'); }, 2200);
+  });
+
+  // NAV scroll border + active link
+  var nav = document.getElementById('nav');
+  window.addEventListener('scroll', function() {
+    nav.classList.toggle('scrolled', window.scrollY > 20);
+    updateNav();
+  }, { passive: true });
+  function updateNav() {
+    var ids = ['about','components','mission','ros2','specs'];
+    var links = document.querySelectorAll('.nav-links li a');
+    var cur = '';
+    ids.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el && window.scrollY >= el.offsetTop - 120) cur = id;
+    });
+    links.forEach(function(l) { l.classList.toggle('active', l.getAttribute('href') === '#' + cur); });
+  }
+
+  // Hamburger
+  document.getElementById('hamburger').addEventListener('click', function() {
+    document.getElementById('nav-mobile').classList.toggle('open');
+  });
+  document.querySelectorAll('#nav-mobile li a').forEach(function(a) {
+    a.addEventListener('click', function() { document.getElementById('nav-mobile').classList.remove('open'); });
+  });
+
+  // Scroll-reveal animations
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) { e.target.classList.add('anim-visible'); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.06 });
+  document.querySelectorAll('.anim-hidden').forEach(function(el) { obs.observe(el); });
+
+  // Stop auto-rotate when user interacts with model-viewer
+  var mv = document.getElementById('rover-model');
+  if (mv) {
+    mv.addEventListener('camera-change', function(e) {
+      if (e.detail.source === 'user-interaction') {
+        mv.removeAttribute('auto-rotate');
+      }
+    });
+  }
+</script>
+</body>
+</html>
