@@ -225,6 +225,10 @@
       font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:0.08em;
       padding:6px 14px;border-radius:50px;background:var(--near-black);color:#fff;
     }
+    .ros2-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
+    .ros2-images{display:flex;flex-direction:column;gap:24px;}
+    .ros-img{width:100%;border-radius:var(--radius);object-fit:cover;border:1px solid var(--light-gray);box-shadow:0 8px 32px rgba(0,0,0,0.08);}
+    .blueprint-img{width:100%;margin-top:40px;border-radius:var(--radius);border:1px solid var(--light-gray);box-shadow:0 8px 32px rgba(0,0,0,0.08);}
 
     /* ── SPECS ── */
     #specs{background:var(--white);}
@@ -256,7 +260,7 @@
     @media(max-width:768px){
       .nav-links{display:none;}
       .nav-hamburger{display:flex;}
-      .about-grid,.specs-grid{grid-template-columns:1fr;gap:40px;}
+      .about-grid,.specs-grid,.ros2-grid{grid-template-columns:1fr;gap:40px;}
       .about-stats{grid-template-columns:repeat(3,1fr);}
       .comp-grid{grid-template-columns:1fr 1fr;}
       section{padding:72px 5%;}
@@ -279,7 +283,7 @@
 
 <!-- NAV -->
 <nav id="nav">
-  <div class="nav-logo">MARS Rover <span>/</span> 2.0</div>
+  <div class="nav-logo">MARS Rover 2.0</div>
   <ul class="nav-links">
     <li><a href="#about">About</a></li>
     <li><a href="#components">Components</a></li>
@@ -503,25 +507,31 @@
 
 <div class="section-divider"></div>
 
-<!-- ROS2 SOFTWARE — text only, no image -->
+<!-- ROS2 SOFTWARE -->
 <section id="ros2">
-  <div class="ros2-inner anim-hidden">
-    <div class="section-label">// Software Stack</div>
-    <h2 class="section-title">Powered by ROS 2</h2>
-    <p class="section-desc">The rover runs on ROS 2 (Robot Operating System 2), a robust middleware framework providing real-time communication between sensor nodes, motor controllers, and decision-making modules.</p>
-    <div class="ros2-features">
-      <div class="ros2-feature"><div class="ros2-dot"></div><div class="ros2-feature-text">DDS-based publish/subscribe messaging between distributed nodes</div></div>
-      <div class="ros2-feature"><div class="ros2-dot"></div><div class="ros2-feature-text">LiDAR point cloud processing &amp; obstacle avoidance algorithms</div></div>
-      <div class="ros2-feature"><div class="ros2-dot"></div><div class="ros2-feature-text">Real-time sensor fusion: LiDAR + ultrasonic + IMU pipeline</div></div>
-      <div class="ros2-feature"><div class="ros2-dot"></div><div class="ros2-feature-text">Autonomous arm control &amp; soil drill sequencing via action servers</div></div>
-      <div class="ros2-feature"><div class="ros2-dot"></div><div class="ros2-feature-text">Solar tracking loop via LDR differential feedback controller</div></div>
+  <div class="ros2-grid">
+    <div class="ros2-inner anim-hidden">
+      <div class="section-label">// Software Stack</div>
+      <h2 class="section-title">Powered by ROS 2</h2>
+      <p class="section-desc">The rover runs on ROS 2 (Robot Operating System 2), a robust middleware framework providing real-time communication between sensor nodes, motor controllers, and decision-making modules.</p>
+      <div class="ros2-features">
+        <div class="ros2-feature"><div class="ros2-dot"></div><div class="ros2-feature-text">DDS-based publish/subscribe messaging between distributed nodes</div></div>
+        <div class="ros2-feature"><div class="ros2-dot"></div><div class="ros2-feature-text">LiDAR point cloud processing &amp; obstacle avoidance algorithms</div></div>
+        <div class="ros2-feature"><div class="ros2-dot"></div><div class="ros2-feature-text">Real-time sensor fusion: LiDAR + ultrasonic + IMU pipeline</div></div>
+        <div class="ros2-feature"><div class="ros2-dot"></div><div class="ros2-feature-text">Autonomous arm control &amp; soil drill sequencing via action servers</div></div>
+        <div class="ros2-feature"><div class="ros2-dot"></div><div class="ros2-feature-text">Solar tracking loop via LDR differential feedback controller</div></div>
+      </div>
+      <div class="ros2-tags">
+        <span class="ros2-tag">ROS 2 HUMBLE</span>
+        <span class="ros2-tag">UBUNTU 22.04</span>
+        <span class="ros2-tag">DDS / FASTRTPS</span>
+        <span class="ros2-tag">PYTHON 3.10</span>
+        <span class="ros2-tag">RCLPY</span>
+      </div>
     </div>
-    <div class="ros2-tags">
-      <span class="ros2-tag">ROS 2 HUMBLE</span>
-      <span class="ros2-tag">UBUNTU 22.04</span>
-      <span class="ros2-tag">DDS / FASTRTPS</span>
-      <span class="ros2-tag">PYTHON 3.10</span>
-      <span class="ros2-tag">RCLPY</span>
+    <div class="ros2-images anim-hidden" style="transition-delay:0.15s">
+      <img src="ros1.jpeg" alt="ROS Dashboard" class="ros-img"/>
+      <img src="ros2.jpeg" alt="ROS Architecture" class="ros-img"/>
     </div>
   </div>
 </section>
@@ -535,6 +545,7 @@
       <div class="section-label">// Technical Specs</div>
       <h2 class="section-title">Specifications</h2>
       <p class="section-desc">Complete technical breakdown of the MARS Rover 2.0 hardware and software architecture.</p>
+      <img src="blueprint.jpeg" alt="Rover Blueprint" class="blueprint-img"/>
     </div>
     <div class="anim-hidden" style="transition-delay:0.15s">
       <table class="specs-table">
