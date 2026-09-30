@@ -12,11 +12,14 @@
   <meta property="og:type" content="website"/>
   <title>MARS Rover 2.0 | AI and robotics project</title>
 
-  <link rel="preload" href="rover.glb?v=3" as="fetch" crossorigin="anonymous"/>
-  <!-- MeshoptDecoder must load BEFORE model-viewer to decode EXT_meshopt_compression GLBs -->
-  <script src="https://cdn.jsdelivr.net/npm/meshoptimizer@0.19.0/meshopt_decoder.js"></script>
-  <!-- model-viewer from both CDNs for maximum reliability -->
-  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+  <!-- model-viewer + meshopt decoder setup -->
+  <script type="module">
+    import 'https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js';
+    await customElements.whenDefined('model-viewer');
+    const MV = customElements.get('model-viewer');
+    if (MV) MV.meshoptDecoderLocation = 'https://cdn.jsdelivr.net/npm/meshoptimizer@0.19.0/meshopt_decoder.js';
+  </script>
+
 
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
@@ -385,7 +388,7 @@
 <div id="viewer-section">
   <model-viewer
     id="rover-model"
-    src="rover.glb?v=3"
+    src="rover.glb?v=4"
     alt="MARS Rover 2.0 interactive 3D model"
     camera-controls
     auto-rotate
